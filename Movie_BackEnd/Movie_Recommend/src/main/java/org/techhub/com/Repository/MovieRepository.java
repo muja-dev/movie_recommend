@@ -11,4 +11,8 @@ public interface MovieRepository {
 	public List<MovieInfo> viewAllMovies();
 	
 	public List<MovieInfo> searchByGenre(String genre);
+	
+	public List<MovieInfo> searchByActor(String actor);
+	
+	public List<MovieInfo> searchByMulti(String actor,String genre,int year);
 }

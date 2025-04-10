@@ -30,4 +30,15 @@ public class MovieServiceImpl implements MovieService {
 		return movieRepo.searchByGenre(genre);
 	}
 
+	@Override
+	public List<MovieInfo> searchByActor(String actor) {
+		
+		return movieRepo.searchByActor(actor);
+	}
+
+	@Override
+	public List<MovieInfo> searchByMulti(String actor, String genre, int year) {
+		return movieRepo.searchByMulti(actor, genre, year);
+	}
+
 }

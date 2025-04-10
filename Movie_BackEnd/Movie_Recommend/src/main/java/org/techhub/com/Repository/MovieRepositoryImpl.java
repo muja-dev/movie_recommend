@@ -30,7 +30,7 @@ public class MovieRepositoryImpl implements MovieRepository {
 				ps.setString(2, movie.getGenre());
 				ps.setInt(3, movie.getRelease_year());
 				ps.setString(4, movie.getDirector());
-				ps.setFloat(5, movie.getRating());
+				ps.setFloat(5, movie.getRating());       
 				ps.setString(6, movie.getDescription());
 				ps.setString(7, movie.getPoster_url());
 				ps.setString(8, movie.getHero());
@@ -69,7 +69,7 @@ public class MovieRepositoryImpl implements MovieRepository {
 
 	@Override
 	public List<MovieInfo> searchByGenre(String genre) {
-		list=jdbcTemplate.query("select *from movies where genre=?", new Object[] {genre},new RowMapper<MovieInfo>() {
+		list=jdbcTemplate.query("select *from movies where genre like ?", new Object[] {genre},new RowMapper<MovieInfo>() {
 
 			@Override
 			public MovieInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -89,6 +89,58 @@ public class MovieRepositoryImpl implements MovieRepository {
 			}
 			
 		});
+		return list;
+	}
+
+	@Override
+	public List<MovieInfo> searchByActor(String actor) {
+		list=jdbcTemplate.query("select *from movies where hero like ?", new Object[] {actor},new RowMapper<MovieInfo>() {
+
+			@Override
+			public MovieInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+				MovieInfo movie=new MovieInfo();
+				movie.setMovie_id(rs.getInt(1));
+				movie.setTitle(rs.getString(2));
+				movie.setGenre(rs.getString(3));
+				movie.setRelease_year(rs.getInt(4));
+				movie.setDirector(rs.getString(5));
+				movie.setRating(rs.getFloat(6));
+				movie.setDescription(rs.getString(7));
+				movie.setPoster_url(rs.getString(8));
+				movie.setHero(rs.getString(9));
+				movie.setHeroine(rs.getString(10));
+				movie.setYt_link(rs.getString(11));
+				return movie;
+			}
+			
+		});
+		return list;
+	}
+
+	@Override
+	public List<MovieInfo> searchByMulti(String actor, String genre, int year) {
+		list=jdbcTemplate.query("select *from movies where hero like ? and genre like ? and release_year=?", new Object[] {"%" + actor + "%","%" + genre + "%", year },new RowMapper<MovieInfo>() {
+
+			@Override
+			public MovieInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+				MovieInfo movie=new MovieInfo();
+				movie.setMovie_id(rs.getInt(1));
+				movie.setTitle(rs.getString(2));
+				movie.setGenre(rs.getString(3));
+				movie.setRelease_year(rs.getInt(4));
+				movie.setDirector(rs.getString(5));
+				movie.setRating(rs.getFloat(6));
+				movie.setDescription(rs.getString(7));
+				movie.setPoster_url(rs.getString(8));
+				movie.setHero(rs.getString(9));
+				movie.setHeroine(rs.getString(10));
+				movie.setYt_link(rs.getString(11));
+
+				return movie;
+			}
+			 
+		});
+		
 		return list;
 	}
 	
