@@ -41,4 +41,15 @@ public class MovieServiceImpl implements MovieService {
 		return movieRepo.searchByMulti(actor, genre, year);
 	}
 
+	@Override
+	public boolean deleteByName(String title) {
+		return movieRepo.deleteByName(title);
+	}
+
+	@Override
+	public boolean updatemovie(MovieInfo movie) {
+		// TODO Auto-generated method stub
+		return movieRepo.updatemovie(movie);
+	}
+
 }

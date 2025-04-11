@@ -19,6 +19,7 @@ public class UserRepositoryImpl implements UserRespository {
 	JdbcTemplate jdbcTemplate;
 	@Override
 	public boolean addUser(UserInfo user) {
+
 		int value=jdbcTemplate.update("insert into users (username,email,password_hash) values(?,?,?)",new PreparedStatementSetter() {
 
 			@Override

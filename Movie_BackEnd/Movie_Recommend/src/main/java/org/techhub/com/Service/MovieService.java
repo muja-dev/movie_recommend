@@ -15,6 +15,10 @@ public interface MovieService {
 	public List<MovieInfo> searchByActor(String actor);
 
 	public List<MovieInfo> searchByMulti(String actor,String genre,int year);
+	
+	public boolean deleteByName(String title);
+
+	public boolean updatemovie(MovieInfo movie);
 
 
 	
