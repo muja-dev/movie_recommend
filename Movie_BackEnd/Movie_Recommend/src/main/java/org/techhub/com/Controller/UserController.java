@@ -1,5 +1,7 @@
 package org.techhub.com.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +56,17 @@ public class UserController {
 	    }
 	}
 	
+	@GetMapping("/showAllUsers")
+	public List<UserInfo> showAllUsers(){
+		List<UserInfo> list=userService.showAllUser();
+		if(list.size()>0)
+		{
+			return list;
+		}
+		else {
+			return null;
+		}
+	}
 	
 	
 	

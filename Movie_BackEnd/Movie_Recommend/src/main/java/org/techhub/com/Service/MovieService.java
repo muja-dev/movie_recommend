@@ -16,10 +16,11 @@ public interface MovieService {
 
 	public List<MovieInfo> searchByMulti(String actor,String genre,int year);
 	
-	public boolean deleteByName(String title);
+	public boolean deleteById(int movie_id);
 
 	public boolean updatemovie(MovieInfo movie);
 
+	public List<MovieInfo> getTopRatedMovies();
 
 	
 }

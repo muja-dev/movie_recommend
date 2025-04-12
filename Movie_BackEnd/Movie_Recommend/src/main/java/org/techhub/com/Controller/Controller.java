@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.techhub.com.Exceptions.MovieNotFound;
 import org.techhub.com.Model.MovieInfo;
 import org.techhub.com.Service.MovieService;
-
+@CrossOrigin(origins = "http://localhost:5173/")
 @RestController
 public class Controller {
 	
@@ -85,18 +86,16 @@ public class Controller {
 	}
 	
 	
-	@DeleteMapping("/deleteByName/{title}")
-	public String deleteByName(@PathVariable("title") String title) {
-		boolean b=movieService.deleteByName(title);
-		if(b)
-		{
-			return "movie deleted";
-		}
-		else {
-			throw new MovieNotFound("Movie not found");
-		}
-		
+	@DeleteMapping("/deleteById/{id}")
+	public ResponseEntity<String> deleteMovie(@PathVariable("id") int id) {
+	    boolean success = movieService.deleteById(id);
+	    if (success) {
+	        return ResponseEntity.ok("Movie deleted");
+	    } else {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Movie not found");
+	    }
 	}
+
 	
 	@PutMapping("/updatemovie")
 	public ResponseEntity<String> updateMovie(@RequestBody MovieInfo movie) {
@@ -109,7 +108,18 @@ public class Controller {
 	    }
 	}
 
-	
+	@GetMapping("/topRatedMovie")
+	public List<MovieInfo> getTopRatedMovie()
+	{
+		List<MovieInfo> list=movieService.getTopRatedMovies();
+		if(list.size()>0)
+		{
+			return list;
+		}
+		else {
+			throw new MovieNotFound("Not found movie");
+		}
+	}
 	
 	
 	

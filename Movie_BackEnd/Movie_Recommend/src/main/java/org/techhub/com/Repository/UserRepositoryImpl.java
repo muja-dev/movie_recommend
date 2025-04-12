@@ -67,6 +67,23 @@ public class UserRepositoryImpl implements UserRespository {
 		return value>0?true:false;
 		
 	}
+	@Override
+	public List<UserInfo> showAllUser() {
+		List<UserInfo> list=jdbcTemplate.query("select user_id,username,email,created_at from users", new RowMapper<UserInfo>() {
+
+			@Override
+			public UserInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+				UserInfo user=new UserInfo();
+				user.setUserId(rs.getInt(1));
+				user.setUsername(rs.getString(2));
+				user.setEmail(rs.getString(3));
+				user.setCreatedAt(rs.getString(4));
+				return user;
+			}
+			
+		});
+		return list.size()>0?list:null;
+	}
 	
 	
 

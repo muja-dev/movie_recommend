@@ -22,39 +22,41 @@ public class MovieRepositoryImpl implements MovieRepository {
 	List<MovieInfo> list;
 	@Override
 	public boolean addMovie(MovieInfo movie) {
-	    // 1. Insert into movies
-	    int movieResult = jdbcTemplate.update(
+	    // Insert movie
+	    jdbcTemplate.update(
 	        "INSERT INTO movies (title, release_year, director, rating, description, poster_url, yt_link) VALUES (?, ?, ?, ?, ?, ?, ?)",
-	        ps -> {
-	            ps.setString(1, movie.getTitle());
-	            ps.setInt(2, movie.getRelease_year());
-	            ps.setString(3, movie.getDirector());
-	            ps.setFloat(4, movie.getRating());
-	            ps.setString(5, movie.getDescription());
-	            ps.setString(6, movie.getPoster_url());
-	            ps.setString(7, movie.getYt_link());
-	        }
+	        movie.getTitle(), movie.getRelease_year(), movie.getDirector(), movie.getRating(),
+	        movie.getDescription(), movie.getPoster_url(), movie.getYt_link()
 	    );
-
-	    // 2. Get the generated movie_id
 	    Integer movieId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
 
-	    // 3. Insert actors and link
+	    // Handle actors
 	    for (String actor : movie.getActor()) {
-	        jdbcTemplate.update("INSERT INTO actor (actor_name) VALUES (?)", actor);
-	        Integer actorId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+	        Integer actorId = jdbcTemplate.query(
+	            "SELECT actor_id FROM actor WHERE actor_name=?",
+	            new Object[]{actor}, (rs, rowNum) -> rs.getInt(1)
+	        ).stream().findFirst().orElseGet(() -> {
+	            jdbcTemplate.update("INSERT INTO actor (actor_name) VALUES (?)", actor);
+	            return jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+	        });
 	        jdbcTemplate.update("INSERT INTO actor_movie (movie_id, actor_id) VALUES (?, ?)", movieId, actorId);
 	    }
 
-	    // 4. Insert genres and link
+	    // Handle genres
 	    for (String genre : movie.getGenre()) {
-	        jdbcTemplate.update("INSERT INTO genre (genre_name) VALUES (?)", genre);
-	        Integer genreId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+	        Integer genreId = jdbcTemplate.query(
+	            "SELECT genre_id FROM genre WHERE genre_name=?",
+	            new Object[]{genre}, (rs, rowNum) -> rs.getInt(1)
+	        ).stream().findFirst().orElseGet(() -> {
+	            jdbcTemplate.update("INSERT INTO genre (genre_name) VALUES (?)", genre);
+	            return jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+	        });
 	        jdbcTemplate.update("INSERT INTO genre_movie (movie_id, genre_id) VALUES (?, ?)", movieId, genreId);
 	    }
 
-	    return movieResult > 0;
+	    return true;
 	}
+
 
 
 	@Override
@@ -104,7 +106,7 @@ public class MovieRepositoryImpl implements MovieRepository {
 	        }
 	    });
 
-	    return list.isEmpty() ? null : list;
+	    return list.isEmpty() ? list : list;
 	}
 
 
@@ -264,12 +266,12 @@ public class MovieRepositoryImpl implements MovieRepository {
 
 
 	@Override
-	public boolean deleteByName(String title) {
+	public boolean deleteById(int movie_id) {
 	    try {
 	        // Step 1: Get movie_id(s) for the given title
 	        List<Integer> movieIds = jdbcTemplate.query(
-	            "SELECT movie_id FROM movies WHERE title = ?",
-	            new Object[]{title},
+	            "SELECT movie_id FROM movies WHERE movie_id = ?",
+	            new Object[]{movie_id},
 	            (rs, rowNum) -> rs.getInt("movie_id")
 	        );
 
@@ -285,8 +287,8 @@ public class MovieRepositoryImpl implements MovieRepository {
 
 	        // Step 3: Delete from movies table
 	        int rowsAffected = jdbcTemplate.update(
-	            "DELETE FROM movies WHERE title = ?",
-	            title
+	            "DELETE FROM movies WHERE movie_id = ?",
+	            movie_id
 	        );
 
 	        return rowsAffected > 0;
@@ -301,60 +303,82 @@ public class MovieRepositoryImpl implements MovieRepository {
 	public boolean updatemovie(MovieInfo movie) {
 	    int updated = jdbcTemplate.update(
 	        "UPDATE movies SET title=?, release_year=?, director=?, rating=?, description=?, poster_url=?, yt_link=? WHERE movie_id=?",
-	        movie.getTitle(),
-	        movie.getRelease_year(),
-	        movie.getDirector(),
-	        movie.getRating(),
-	        movie.getDescription(),
-	        movie.getPoster_url(),
-	        movie.getYt_link(),
-	        movie.getMovie_id()
+	        movie.getTitle(), movie.getRelease_year(), movie.getDirector(),
+	        movie.getRating(), movie.getDescription(), movie.getPoster_url(),
+	        movie.getYt_link(), movie.getMovie_id()
 	    );
 
-	    if (updated > 0) {
-	        // Delete old relationships from join tables
-	        jdbcTemplate.update("DELETE FROM actor_movie WHERE movie_id=?", movie.getMovie_id());
-	        jdbcTemplate.update("DELETE FROM genre_movie WHERE movie_id=?", movie.getMovie_id());
+	    if (updated <= 0) return false;
 
-	        // Insert updated actors
-	        for (String actorName : movie.getActor()) {
-	            List<Integer> actorIds = jdbcTemplate.query(
-	                "SELECT actor_id FROM actor WHERE actor_name=?",
-	                new Object[]{actorName},
-	                (rs, rowNum) -> rs.getInt("actor_id")
-	            );
+	    jdbcTemplate.update("DELETE FROM actor_movie WHERE movie_id=?", movie.getMovie_id());
+	    jdbcTemplate.update("DELETE FROM genre_movie WHERE movie_id=?", movie.getMovie_id());
 
-	            for (Integer actorId : actorIds) {
-	                jdbcTemplate.update("INSERT INTO actor_movie(actor_id, movie_id) VALUES(?, ?)", actorId, movie.getMovie_id());
-	            }
-
-	            if (actorIds.isEmpty()) {
-	                System.err.println("No actor found for name: " + actorName);
-	            }
+	    for (String actor : movie.getActor()) {
+	        Integer actorId = jdbcTemplate.query(
+	            "SELECT actor_id FROM actor WHERE actor_name=?",
+	            new Object[]{actor},
+	            (rs) -> rs.next() ? rs.getInt("actor_id") : null
+	        );
+	        if (actorId == null) {
+	            jdbcTemplate.update("INSERT INTO actor (actor_name) VALUES (?)", actor);
+	            actorId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
 	        }
-
-	        // Insert updated genres
-	        for (String genreName : movie.getGenre()) {
-	            List<Integer> genreIds = jdbcTemplate.query(
-	                "SELECT genre_id FROM genre WHERE genre_name=?",
-	                new Object[]{genreName},
-	                (rs, rowNum) -> rs.getInt("genre_id")
-	            );
-
-	            for (Integer genreId : genreIds) {
-	                jdbcTemplate.update("INSERT INTO genre_movie(genre_id, movie_id) VALUES(?, ?)", genreId, movie.getMovie_id());
-	            }
-
-	            if (genreIds.isEmpty()) {
-	                System.err.println("No genre found for name: " + genreName);
-	            }
-	        }
-
-	        return true;
+	        jdbcTemplate.update("INSERT INTO actor_movie (actor_id, movie_id) VALUES (?, ?)", actorId, movie.getMovie_id());
 	    }
 
-	    return false;
+	    for (String genre : movie.getGenre()) {
+	        Integer genreId = jdbcTemplate.query(
+	            "SELECT genre_id FROM genre WHERE genre_name=?",
+	            new Object[]{genre},
+	            (rs) -> rs.next() ? rs.getInt("genre_id") : null
+	        );
+	        if (genreId == null) {
+	            jdbcTemplate.update("INSERT INTO genre (genre_name) VALUES (?)", genre);
+	            genreId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+	        }
+	        jdbcTemplate.update("INSERT INTO genre_movie (genre_id, movie_id) VALUES (?, ?)", genreId, movie.getMovie_id());
+	    }
+
+	    return true;
 	}
+
+	@Override
+	public List<MovieInfo> getTopRatedMovies() {
+	    List<MovieInfo> movies = jdbcTemplate.query(
+	        "SELECT movie_id, title, release_year, director, rating, description, poster_url, yt_link FROM movies ORDER BY rating DESC LIMIT 10",
+	        (rs, rowNum) -> {
+	            MovieInfo movie = new MovieInfo();
+	            movie.setMovie_id(rs.getInt("movie_id"));
+	            movie.setTitle(rs.getString("title"));
+	            movie.setRelease_year(rs.getInt("release_year"));
+	            movie.setDirector(rs.getString("director"));
+	            movie.setRating(rs.getFloat("rating"));
+	            movie.setDescription(rs.getString("description"));
+	            movie.setPoster_url(rs.getString("poster_url"));
+	            movie.setYt_link(rs.getString("yt_link"));
+	            return movie;
+	        }
+	    );
+
+	    for (MovieInfo movie : movies) {
+	        List<String> actors = jdbcTemplate.query(
+	            "SELECT a.actor_name FROM actor a JOIN actor_movie am ON a.actor_id = am.actor_id WHERE am.movie_id = ?",
+	            new Object[]{movie.getMovie_id()},
+	            (rs, rowNum) -> rs.getString("actor_name")
+	        );
+	        movie.setActor(actors);
+
+	        List<String> genres = jdbcTemplate.query(
+	            "SELECT g.genre_name FROM genre g JOIN genre_movie gm ON g.genre_id = gm.genre_id WHERE gm.movie_id = ?",
+	            new Object[]{movie.getMovie_id()},
+	            (rs, rowNum) -> rs.getString("genre_name")
+	        );
+	        movie.setGenre(genres);
+	    }
+
+	    return movies;
+	}
+
 
 
 	

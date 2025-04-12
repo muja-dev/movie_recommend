@@ -42,14 +42,20 @@ public class MovieServiceImpl implements MovieService {
 	}
 
 	@Override
-	public boolean deleteByName(String title) {
-		return movieRepo.deleteByName(title);
+	public boolean deleteById(int movie_id) {
+		return movieRepo.deleteById(movie_id);
 	}
 
 	@Override
 	public boolean updatemovie(MovieInfo movie) {
 		// TODO Auto-generated method stub
 		return movieRepo.updatemovie(movie);
+	}
+
+	@Override
+	public List<MovieInfo> getTopRatedMovies() {
+		// TODO Auto-generated method stub
+		return movieRepo.getTopRatedMovies();
 	}
 
 }
