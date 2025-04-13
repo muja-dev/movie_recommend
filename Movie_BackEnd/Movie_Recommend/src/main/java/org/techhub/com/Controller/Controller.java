@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.techhub.com.Exceptions.MovieNotFound;
 import org.techhub.com.Model.MovieInfo;
@@ -48,17 +49,11 @@ public class Controller {
 	}
 	
 	
-	@GetMapping("/searchByGenre/{genre}")
-	public List<MovieInfo> searchByGenre(@PathVariable("genre") String genre){
-		List<MovieInfo> list=movieService.searchByGenre(genre);
-		if(list.size()>0)
-		{
-			return list;
-		}
-		else {
-			return null;
-		}
+	@GetMapping("/searchByGenre")
+	public List<MovieInfo> searchByGenre(@RequestParam(name = "genre") String genre) {
+	    return movieService.searchByGenre(genre);
 	}
+
 	
 	@GetMapping("/searchByActor/{actor}")
 	public List<MovieInfo> searchByActor(@PathVariable("actor") String actor){
