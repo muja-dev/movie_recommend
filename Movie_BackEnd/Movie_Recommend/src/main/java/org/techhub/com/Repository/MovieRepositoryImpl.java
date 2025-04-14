@@ -222,7 +222,7 @@ public class MovieRepositoryImpl implements MovieRepository {
 			"JOIN actor a ON am.actor_id = a.actor_id " +
 			"JOIN genre_movie gm ON m.movie_id = gm.movie_id " +
 			"JOIN genre g ON gm.genre_id = g.genre_id " +
-			"WHERE a.actor_name LIKE ? AND g.genre_name LIKE ? AND m.release_year = ?",
+			"WHERE a.actor_name LIKE ? or g.genre_name LIKE ? or m.release_year = ?",
 			new Object[] { "%" + actor + "%", "%" + genre + "%", year },
 			new RowMapper<MovieInfo>() {
 
