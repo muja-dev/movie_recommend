@@ -53,7 +53,7 @@ const MovieCard = ({ movie, onDelete, onUpdate, isEditing, startEdit, cancelEdit
 
   return (
     <>
-      <div className="card m-3" style={{ width: '18rem', cursor: 'pointer' }} onClick={() => setShowModal(true)}>
+      <div className="card m-3 mt-5" style={{ width: '28rem', cursor: 'pointer' }} onClick={() => setShowModal(true)}>
         <img src={movie.poster_url} className="card-img-top" alt={movie.title} />
         <div className="card-body">
           <h5 className="card-title">{movie.title}</h5>
