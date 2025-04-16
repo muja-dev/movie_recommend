@@ -34,7 +34,7 @@ public class UserRepositoryImpl implements UserRespository {
 	}
 	@Override
 	public boolean loginUser(String name, String password) {
-		List<UserInfo> list=jdbcTemplate.query("select *from users where username=? and password_hash=?", new Object[] {name,password},new RowMapper<UserInfo>() {
+		List<UserInfo> list=jdbcTemplate.query("select *from users where email=? and password_hash=?", new Object[] {name,password},new RowMapper<UserInfo>() {
 
 			@Override
 			public UserInfo mapRow(ResultSet rs, int rowNum) throws SQLException {

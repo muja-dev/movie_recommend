@@ -35,7 +35,7 @@ public class UserController {
 	
 	@PostMapping("/login")
 	public ResponseEntity<String> loginUser(@RequestBody UserInfo user) {
-	    boolean result = userService.loginUser(user.getUsername(), user.getPassword());
+	    boolean result = userService.loginUser(user.getEmail(), user.getPassword());
 	    if (result) {
 	        return ResponseEntity.ok("Login successful");
 	    } else {

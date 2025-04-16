@@ -11,7 +11,6 @@ const extractYouTubeID = (url) => {
   return match ? match[1] : null;
 };
 
-
 const MovieCard = ({ movie, onDelete, onUpdate, isEditing, startEdit, cancelEdit }) => {
   const [formData, setFormData] = useState({ ...movie });
   const [showModal, setShowModal] = useState(false);
@@ -23,10 +22,17 @@ const MovieCard = ({ movie, onDelete, onUpdate, isEditing, startEdit, cancelEdit
   const handleSave = () => {
     const updatedData = {
       ...formData,
-      actor: formData.actor.split(',').map(name => name.trim()),
-      genre: formData.genre.split(',').map(name => name.trim()),
+      // Handle actor and genre correctly based on their type
+      actor: typeof formData.actor === 'string'
+        ? formData.actor.split(',').map(name => name.trim())
+        : formData.actor,
+      genre: typeof formData.genre === 'string'
+        ? formData.genre.split(',').map(name => name.trim())
+        : formData.genre,
       rating: parseFloat(formData.rating),
     };
+
+    // Call the onUpdate callback with the updated data
     onUpdate(updatedData);
   };
 
@@ -38,9 +44,9 @@ const MovieCard = ({ movie, onDelete, onUpdate, isEditing, startEdit, cancelEdit
         <input className="form-control mb-2" name="title" value={formData.title} onChange={handleChange} />
         <input className="form-control mb-2" name="director" value={formData.director} onChange={handleChange} />
         <input className="form-control mb-2" name="rating" value={formData.rating} onChange={handleChange} />
-        <input className="form-control mb-2" name="actor" value={formData.actor} onChange={handleChange} />
+        <input className="form-control mb-2" name="actor" value={Array.isArray(formData.actor) ? formData.actor.join(', ') : formData.actor} onChange={handleChange} />
         <input className="form-control mb-2" name="poster_url" value={formData.poster_url} onChange={handleChange} />
-        <input className="form-control mb-2" name="genre" value={formData.genre} onChange={handleChange} />
+        <input className="form-control mb-2" name="genre" value={Array.isArray(formData.genre) ? formData.genre.join(', ') : formData.genre} onChange={handleChange} />
         <input className="form-control mb-2" name="trailer_url" value={formData.trailer_url || ''} onChange={handleChange} />
         <textarea className="form-control mb-2" name="description" value={formData.description} onChange={handleChange} />
         <div className="d-flex justify-content-between">
@@ -59,7 +65,7 @@ const MovieCard = ({ movie, onDelete, onUpdate, isEditing, startEdit, cancelEdit
           <h5 className="card-title">{movie.title}</h5>
           <p className="card-text">{movie.description}</p>
           <p><strong>Director:</strong> {movie.director}</p>
-          <p><strong>Rating:</strong> {movie.rating}</p>
+          <p><strong>Rating ⭐:</strong> {movie.rating}</p>
           <div className="d-flex justify-content-between">
             <button className="btn btn-warning btn-sm" onClick={(e) => { e.stopPropagation(); startEdit(); }}>Update</button>
             <button className="btn btn-danger btn-sm" onClick={(e) => { e.stopPropagation(); onDelete(movie.movie_id); }}>Delete</button>
@@ -72,8 +78,8 @@ const MovieCard = ({ movie, onDelete, onUpdate, isEditing, startEdit, cancelEdit
         <Modal.Header closeButton>
           <Modal.Title>{movie.title}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <img src={movie.poster_url} alt={movie.title} style={{ width: '100%', marginBottom: '1rem' }} />
+        <Modal.Body style={{ width: "400px", height: "400px" }}>
+          <img src={movie.poster_url} alt={movie.title} style={{ width: '60%', marginBottom: '1rem' }} />
           <p><strong>Description:</strong> {movie.description}</p>
           <p><strong>Director:</strong> {movie.director}</p>
           <p><strong>Rating:</strong> {movie.rating}</p>
@@ -84,7 +90,7 @@ const MovieCard = ({ movie, onDelete, onUpdate, isEditing, startEdit, cancelEdit
               <iframe
                 width="100%"
                 height="315"
-                src={`${movie.yt_link}`}
+                src={`https://www.youtube.com/embed/${youtubeID}`}
                 title="YouTube trailer"
                 frameBorder="0"
                 allowFullScreen
