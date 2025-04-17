@@ -17,13 +17,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.techhub.com.Exceptions.MovieNotFound;
 import org.techhub.com.Model.MovieInfo;
 import org.techhub.com.Service.MovieService;
+import org.techhub.com.Service.MovieServiceImpl;
+
 @CrossOrigin(origins = "http://localhost:5173/")
 @RestController
 public class Controller {
+
+//    private final Service.MovieServiceImpl movieService_1;
 	
 	@Autowired
 	MovieService movieService;
-	
+
+    
 	@PostMapping("/addmovie")
 	public String addMovie(@RequestBody MovieInfo movie) {
 		boolean b=movieService.addMovie(movie);
@@ -114,6 +119,12 @@ public class Controller {
 		else {
 			throw new MovieNotFound("Not found movie");
 		}
+	}
+	
+	@GetMapping("/searchByTitle/{title}")
+	public List<MovieInfo> searchByTitle(@PathVariable("title") String title)
+	{
+		return movieService.searchByTitle(title);
 	}
 	
 	

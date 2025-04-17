@@ -22,5 +22,7 @@ public interface MovieService {
 
 	public List<MovieInfo> getTopRatedMovies();
 
+	public List<MovieInfo> searchByTitle(String title);
+
 	
 }

@@ -381,6 +381,59 @@ public class MovieRepositoryImpl implements MovieRepository {
 
 
 
+	@Override
+	public List<MovieInfo> searchByTitle(String title) {
+		  list = jdbcTemplate.query(
+			        "SELECT DISTINCT m.* FROM movies m " +
+			        "JOIN actor_movie am ON m.movie_id = am.movie_id " +
+			        "JOIN actor a ON a.actor_id = am.actor_id " +
+			        "WHERE m.title LIKE ?",
+			        new Object[]{"%" + title + "%"},
+			        new RowMapper<MovieInfo>() {
+
+			            @Override
+			            public MovieInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+			                MovieInfo movie = new MovieInfo();
+			                int movieId = rs.getInt("movie_id");
+
+			                movie.setMovie_id(movieId);
+			                movie.setTitle(rs.getString("title"));
+			                movie.setRelease_year(rs.getInt("release_year"));
+			                movie.setDirector(rs.getString("director"));
+			                movie.setRating(rs.getFloat("rating"));
+			                movie.setDescription(rs.getString("description"));
+			                movie.setPoster_url(rs.getString("poster_url"));
+			                movie.setYt_link(rs.getString("yt_link"));
+
+			                // Get genres
+			                List<String> genres = jdbcTemplate.query(
+			                    "SELECT g.genre_name FROM genre g " +
+			                    "JOIN genre_movie gm ON g.genre_id = gm.genre_id " +
+			                    "WHERE gm.movie_id = ?",
+			                    new Object[]{movieId},
+			                    (genreRs, i) -> genreRs.getString("genre_name")
+			                );
+			                movie.setGenre(genres);
+
+			                // Get actors
+			                List<String> actors = jdbcTemplate.query(
+			                    "SELECT a.actor_name FROM actor a " +
+			                    "JOIN actor_movie am ON a.actor_id = am.actor_id " +
+			                    "WHERE am.movie_id = ?",
+			                    new Object[]{movieId},
+			                    (actorRs, i) -> actorRs.getString("actor_name")
+			                );
+			                movie.setActor(actors);
+
+			                return movie;
+			            }
+			        });
+
+			    return list;
+	}
+
+
+
 	
 	
 	

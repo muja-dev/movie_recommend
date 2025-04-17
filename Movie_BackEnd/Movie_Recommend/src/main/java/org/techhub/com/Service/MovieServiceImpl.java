@@ -58,4 +58,10 @@ public class MovieServiceImpl implements MovieService {
 		return movieRepo.getTopRatedMovies();
 	}
 
+	@Override
+	public List<MovieInfo> searchByTitle(String title) {
+		// TODO Auto-generated method stub
+		return movieRepo.searchByTitle(title);
+	}
+
 }

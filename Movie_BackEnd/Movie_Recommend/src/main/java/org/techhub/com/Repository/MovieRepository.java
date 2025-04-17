@@ -21,4 +21,6 @@ public interface MovieRepository {
 	public boolean updatemovie(MovieInfo movie);
 	
 	public List<MovieInfo> getTopRatedMovies();
+	
+	public List<MovieInfo> searchByTitle(String title);
 }
