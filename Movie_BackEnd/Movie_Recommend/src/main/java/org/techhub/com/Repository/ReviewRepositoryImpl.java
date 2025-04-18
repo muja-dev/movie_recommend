@@ -20,20 +20,31 @@ public class ReviewRepositoryImpl implements ReviewRepository {
 	List<Review> list;
 	@Override
 	public boolean addReview(Review review) {
-		int value=jdbcTemplate.update("insert into ratings (user_id,movie_id,rating,review) values(?,?,?,?)",new PreparedStatementSetter() {
+	    try {
+	        System.out.println("Review being inserted:");
+	        System.out.println("User ID: " + review.getUser_id());
+	        System.out.println("Movie ID: " + review.getMovie_id());
+	        System.out.println("Rating: " + review.getRating());
+	        System.out.println("Review: " + review.getReview());
 
-			@Override
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, review.getUser_id());
-				ps.setInt(2, review.getMovie_id());
-				ps.setFloat(3, review.getRating());
-				ps.setString(4, review.getReview());
-				
-			}
-			
-		});
-		return value>0?true:false;
+	        int value = jdbcTemplate.update("INSERT INTO ratings (user_id, movie_id, rating, review) VALUES (?, ?, ?, ?)",
+	            new PreparedStatementSetter() {
+	                @Override
+	                public void setValues(PreparedStatement ps) throws SQLException {
+	                    ps.setInt(1, review.getUser_id());
+	                    ps.setInt(2, review.getMovie_id());
+	                    ps.setFloat(3, review.getRating());
+	                    ps.setString(4, review.getReview());
+	                }
+	            });
+	        return value > 0;
+	    } catch (Exception e) {
+	        System.err.println("Error inserting review: " + e.getMessage());
+	        e.printStackTrace();
+	        return false;
+	    }
 	}
+
 	@Override
 	public boolean updateReview(Review review) {
 		int value=jdbcTemplate.update("update ratings set rating=?,review=? where rating_id=?",new PreparedStatementSetter() {

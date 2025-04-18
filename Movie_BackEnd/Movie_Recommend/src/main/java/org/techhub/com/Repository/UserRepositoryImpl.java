@@ -33,23 +33,26 @@ public class UserRepositoryImpl implements UserRespository {
 		return value>0?true:false;
 	}
 	@Override
-	public boolean loginUser(String name, String password) {
-		List<UserInfo> list=jdbcTemplate.query("select *from users where email=? and password_hash=?", new Object[] {name,password},new RowMapper<UserInfo>() {
-
-			@Override
-			public UserInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-				UserInfo user =new UserInfo();
-				user.setUserId(rs.getInt(1));
-				user.setUsername(rs.getString(2));
-				user.setEmail(rs.getString(3));
-				user.setPassword(rs.getString(4));
-				user.setCreatedAt(rs.getString(5));
-				return user;
-			}
-			
-		});
-		return list.size()>0?true:false;
+	public UserInfo loginUser(String email, String password) {
+	    List<UserInfo> list = jdbcTemplate.query(
+	        "SELECT * FROM users WHERE email=? AND password_hash=?",
+	        new Object[]{email, password},
+	        new RowMapper<UserInfo>() {
+	            @Override
+	            public UserInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+	                UserInfo user = new UserInfo();
+	                user.setUserId(rs.getInt("user_id")); // or rs.getInt(1)
+	                user.setUsername(rs.getString("username"));
+	                user.setEmail(rs.getString("email"));
+	                user.setPassword(rs.getString("password_hash"));
+	                user.setCreatedAt(rs.getString("created_at"));
+	                return user;
+	            }
+	        }
+	    );
+	    return list.isEmpty() ? null : list.get(0);
 	}
+
 	@Override
 	public boolean updateUserProfile(UserInfo user) {
 		int value=jdbcTemplate.update("update users set username=?,email=? where user_id=?",new PreparedStatementSetter() {

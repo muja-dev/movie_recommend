@@ -1,6 +1,6 @@
 package org.techhub.com.Controller;
 
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,14 +34,18 @@ public class UserController {
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<String> loginUser(@RequestBody UserInfo user) {
-	    boolean result = userService.loginUser(user.getEmail(), user.getPassword());
-	    if (result) {
-	        return ResponseEntity.ok("Login successful");
+	public ResponseEntity<?> login(@RequestBody UserInfo request) {
+	    UserInfo user = userService.loginUser(request.getEmail(), request.getPassword());
+	    if (user != null) {
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("token", "dummy-token-or-generate-jwt");
+	        response.put("userId", user.getUserId());
+	        return ResponseEntity.ok(response);
 	    } else {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
 	    }
 	}
+
 	
 	@PutMapping("/updateProfile")
 	public ResponseEntity<String> updateProfile(@RequestBody UserInfo user)

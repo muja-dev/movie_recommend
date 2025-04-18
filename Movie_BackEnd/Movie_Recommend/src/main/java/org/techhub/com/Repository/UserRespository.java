@@ -6,7 +6,7 @@ import java.util.*;
 public interface UserRespository {
 	public boolean addUser(UserInfo user);
 	
-	public boolean loginUser(String name,String password);
+	public UserInfo loginUser(String name,String password);
 	
 	public boolean updateUserProfile(UserInfo user);
 	
