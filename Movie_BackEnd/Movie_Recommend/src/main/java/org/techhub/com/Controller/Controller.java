@@ -19,7 +19,7 @@ import org.techhub.com.Model.MovieInfo;
 import org.techhub.com.Service.MovieService;
 import org.techhub.com.Service.MovieServiceImpl;
 
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = "*")
 @RestController
 public class Controller {
 

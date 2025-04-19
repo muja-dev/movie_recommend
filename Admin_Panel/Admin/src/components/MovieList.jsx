@@ -42,7 +42,9 @@ const MovieList = () => {
     e.preventDefault();
     try {
       if (searchQuery.trim() === "") {
-        fetchData(); // If empty, load all
+        fetchData(); 
+        console.log(searchQuery);
+        // If empty, load all
       } else {
         const res = await searchMovie(searchQuery);
         setMovies(res.data);
@@ -66,7 +68,7 @@ const MovieList = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <button type="submit" className="btn btn-primary">Search</button>
+        <button type="submit" className="btn btn-primary" >Search</button>
       </form>
 
       <div className="d-flex flex-wrap">
