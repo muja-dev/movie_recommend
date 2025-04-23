@@ -61,7 +61,7 @@ public class MovieRepositoryImpl implements MovieRepository {
 
 	@Override
 	public List<MovieInfo> viewAllMovies() {
-	    List<MovieInfo> list = jdbcTemplate.query("SELECT * FROM movies", new RowMapper<MovieInfo>() {
+	    List<MovieInfo> list = jdbcTemplate.query("SELECT * FROM movies where enabled=true", new RowMapper<MovieInfo>() {
 	        @Override
 	        public MovieInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
 	            MovieInfo movie = new MovieInfo();
@@ -268,35 +268,20 @@ public class MovieRepositoryImpl implements MovieRepository {
 	@Override
 	public boolean deleteById(int movie_id) {
 	    try {
-	        // Step 1: Get movie_id(s) for the given title
-	        List<Integer> movieIds = jdbcTemplate.query(
-	            "SELECT movie_id FROM movies WHERE movie_id = ?",
-	            new Object[]{movie_id},
-	            (rs, rowNum) -> rs.getInt("movie_id")
-	        );
-
-	        if (movieIds.isEmpty()) {
-	            return false; // No movie found
-	        }
-
-	        // Step 2: Delete from join tables
-	        for (int movieId : movieIds) {
-	            jdbcTemplate.update("DELETE FROM actor_movie WHERE movie_id = ?", movieId);
-	            jdbcTemplate.update("DELETE FROM genre_movie WHERE movie_id = ?", movieId);
-	        }
-
-	        // Step 3: Delete from movies table
+	        System.out.println("Updating movie " + movie_id + " to set enabled = FALSE");
 	        int rowsAffected = jdbcTemplate.update(
-	            "DELETE FROM movies WHERE movie_id = ?",
+	            "UPDATE movies SET enabled = FALSE WHERE movie_id = ?",
 	            movie_id
 	        );
-
+	        System.out.println("Rows affected: " + rowsAffected);
 	        return rowsAffected > 0;
 	    } catch (Exception e) {
+	        System.err.println("Failed to disable movie: " + e.getMessage());
 	        e.printStackTrace();
 	        return false;
 	    }
 	}
+
 
 
 	@Override

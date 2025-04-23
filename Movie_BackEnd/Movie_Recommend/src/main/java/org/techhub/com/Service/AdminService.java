@@ -1,8 +1,8 @@
-package org.techhub.com.Repository;
+package org.techhub.com.Service;
 
 import org.techhub.com.Model.AdminInfo;
 
-public interface AdminRepository {
-	
+public interface AdminService {
 	public AdminInfo loginAdmin(String email,String adminpass);
+
 }

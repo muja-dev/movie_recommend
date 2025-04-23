@@ -86,15 +86,15 @@ public class Controller {
 	}
 	
 	
-	@DeleteMapping("/deleteById/{id}")
-	public ResponseEntity<String> deleteMovie(@PathVariable("id") int id) {
-	    boolean success = movieService.deleteById(id);
-	    if (success) {
-	        return ResponseEntity.ok("Movie deleted");
-	    } else {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Movie not found");
-	    }
+	@PutMapping("/disable/{movie_id}")
+	public ResponseEntity<?> disableMovie(@PathVariable int movie_id) {
+	    System.out.println("DISABLING movie with ID: " + movie_id);
+	    boolean result = movieService.deleteById(movie_id);
+	    System.out.println("Disable result: " + result);
+	    return result ? ResponseEntity.ok("Movie disabled")
+	                  : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Movie not found");
 	}
+
 
 	
 	@PutMapping("/updatemovie")

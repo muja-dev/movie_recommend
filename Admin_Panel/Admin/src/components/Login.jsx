@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [adminpass, setAdminpass] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
@@ -12,24 +12,31 @@ const Login = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await axios.post('http://localhost:8080/adminlogin', {
         email,
-        password,
+        adminpass, // Must match what backend expects
       });
 
       const { token, userId } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
-      onLogin(); // Notify App that login succeeded
+
+      if (onLogin) {
+        onLogin(); // Notify parent component
+      }
     } catch (err) {
-      setError('Invalid email or password');
+      if (err.response && err.response.status === 401) {
+        setError('Invalid email or password');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     }
   };
 
   return (
     <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light">
       <div className="card shadow p-4" style={{ maxWidth: '400px', width: '100%' }}>
-        <h3 className="text-center mb-4">Login</h3>
+        <h3 className="text-center mb-4">Admin Login</h3>
         {error && <div className="alert alert-danger text-center py-2">{error}</div>}
 
         <form onSubmit={handleLogin}>
@@ -51,8 +58,8 @@ const Login = ({ onLogin }) => {
               type="password"
               className="form-control"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={adminpass}
+              onChange={(e) => setAdminpass(e.target.value)}
               required
             />
           </div>

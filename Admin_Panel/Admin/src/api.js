@@ -11,4 +11,13 @@ export const searchMovie = (genre) =>
     axios.get(`${API_BASE}/searchByGenre`, {
       params: { genre }
     });
+
+export const adminLogin = (email, password) =>
+    axios.post(`${API_BASE}/adminlogin`, { email, password })
+        .then(response => {
+            const { token, userId } = response.data;
+            localStorage.setItem('token', token);
+            localStorage.setItem('userId', userId);
+            return response.data;
+        });
   
